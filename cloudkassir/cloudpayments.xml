@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<extension type="plugin" version="1.5" method="upgrade" group="hikashoppayment">
+	<name>cloudkassir</name>
+	<creationDate>12 july 2018</creationDate>
+	<version>1.0.0</version>
+	<author>cloudkassir</author>
+	<description>This plugin enables you to setup your cloudkassir payment system</description>
+	<files>
+		<filename plugin="cloudkassir">cloudkassir.php</filename>
+		<filename>cloudkassir_configuration.php</filename>
+		<filename>cloudkassir_end.php</filename>
+		<filename>language/en-gb/en-GB.plg_hikashoppayment_cloudpayments.ini</filename>    
+		<filename>language/en-gb/lang.php</filename>    
+		<filename>language/ru-ru/lang.php</filename>
+	</files>
+	<params addpath="/components/com_hikashop/params">
+		<param name="pluginoptions" type="pluginoptions" default="plugin" label="hikashop" description="HikaShop options" />
+	</params>
+	<config>
+		<fields name="params" addfieldpath="/components/com_hikashop/fields">
+			<fieldset name="basic">
+				<field id="pluginoptions" name="pluginoptions" type="pluginoptions" label="hikashop" description="HikaShop options" />
+			</fieldset>
+		</fields>
+	</config>
+  
+</extension>
