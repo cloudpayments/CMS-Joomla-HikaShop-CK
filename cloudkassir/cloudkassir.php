@@ -159,7 +159,7 @@ class plgHikashoppaymentcloudkassir extends hikashopPaymentPlugin
           if($curl = curl_init()):
                 self::addError("send_request");
 
-               // $request['CustomerReceipt']['Items'][0]['price']=1;
+                // $request['CustomerReceipt']['Items'][0]['price']=1;
                // $request['CustomerReceipt']['Items'][0]['amount']=1;
                 self::addError(print_r($request,1));   
                 
@@ -239,6 +239,7 @@ class plgHikashoppaymentcloudkassir extends hikashopPaymentPlugin
 
         $data['cloudPayments']['customerReceipt']['Items']=$items;
         $data['cloudPayments']['customerReceipt']['taxationSystem']=$params['TYPE_NALOG']; ///
+        $data['cloudPayments']['customerReceipt']['calculationPlace']=$params['calculationPlace'];
         $data['cloudPayments']['customerReceipt']['email']=$Ar_params['email']; 
         $data['cloudPayments']['customerReceipt']['phone']=$Ar_params['phone'];  
         
@@ -431,7 +432,7 @@ class plgHikashoppaymentcloudkassir extends hikashopPaymentPlugin
         $debug=false;
         if ($debug)
         {
-          $file=$_SERVER['DOCUMENT_ROOT'].'/plugins/hikashoppayment/cloudkassir/log.txt';
+          $file=$_SERVER['DOCUMENT_ROOT'].'/plugins/hikashoppayment/cloudkassir/log.txt';          
           $current = file_get_contents($file);
           $current .= date("d-m-Y H:i:s").":".$text."\n";
           file_put_contents($file, $current);
