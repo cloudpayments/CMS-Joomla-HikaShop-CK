@@ -5,13 +5,13 @@ if (!defined('_VALID_MOS') && !defined('_JEXEC'))
 if (!class_exists('hikashopPaymentPlugin'))
 	require(dirname(__FILE__) . DS.'hikashopPaymentPlugin.php');
   
-  
+
 
 include_once($_SERVER['DOCUMENT_ROOT'].'/administrator/components/com_hikashop/helpers/helper.php');
 hikashop_config();
 
+                                            
 
-                                               
 class plgHikashoppaymentcloudkassir extends hikashopPaymentPlugin
 {
 	
@@ -29,10 +29,10 @@ class plgHikashoppaymentcloudkassir extends hikashopPaymentPlugin
 		'pending_status' => array('PENDING_STATUS', 'orderstatus'),
 		'verified_status' => array('VERIFIED_STATUS', 'orderstatus')
 	); */
-  
 
   
   
+
 	function __construct(&$subject, $config)
 	{
 		parent::__construct($subject, $config);
@@ -50,8 +50,8 @@ class plgHikashoppaymentcloudkassir extends hikashopPaymentPlugin
     		$sSql = "SELECT `payment_id` FROM `".hikashop_table('payment')."` where `payment_name`='cloudkassir' LIMIT 1";
     		$oDb->setQuery($sSql);
     		$sRow = $oDb->loadAssocList();
+            self::addError(print_r($sRow,1));
         if ($sRow[0]['payment_id']):
-
               $this->pluginParams($sRow[0]['payment_id']);
               $this->payment_params =& $this->plugin_params;
               $params=self::Object_to_array($this->payment_params);
@@ -66,7 +66,7 @@ class plgHikashoppaymentcloudkassir extends hikashopPaymentPlugin
       
   }   
   
-  
+
 
 	/** Срабатывает после оформления заказа **/
   public function onAfterOrderConfirm(&$order, &$methods, $method_id)   //ok  ----
@@ -88,21 +88,21 @@ class plgHikashoppaymentcloudkassir extends hikashopPaymentPlugin
         endif;
   }
 
-  
-  
   public function get_cart($order)
   {
       global $oDb;
       //$order->order_id
       if ($order->order_id):
+             $quantities = array();
               $oDb = JFactory::getDBO();
-              $query="SELECT `product_id` FROM `".hikashop_table('order_product')."` where `order_id`=".$order->order_id;
+              $query="SELECT * FROM `".hikashop_table('order_product')."` where `order_id`=".$order->order_id;
               self::addError(print_r($query,1));
         			$oDb->setQuery($query);
         			$rows0 = $oDb->loadObjectList();
         			foreach($rows0 as $k => $row0)
               {
                  $product_ids[]=$row0->product_id;
+                 $quantities[$row0->product_id] = $row0->order_product_quantity;
               }
               self::addError(print_r($product_ids,1));
          			$query = 'SELECT * FROM '.hikashop_table('product').' WHERE product_id IN ('.implode(',',$product_ids).')';
@@ -125,7 +125,7 @@ class plgHikashoppaymentcloudkassir extends hikashopPaymentPlugin
           				$obj = new stdClass();
           				$obj->order_product_name = $row->product_name;
           				$obj->order_product_code = $row->product_code;
-          				$obj->order_product_quantity = (!empty($quantities[$row->product_id]) ? $quantities[$row->product_id]:1 );
+          				$obj->order_product_quantity = (!empty($quantities[$row->product_id]) ? $quantities[$row->product_id]:1 );    //order_product_quantity
           				$currencyClass->pricesSelection($row->prices,$obj->order_product_quantity);
           				$obj->product_id = $row->product_id;
                   self::addError('SELECT * FROM '.hikashop_table('order_product').' WHERE `order_id`='.$order->order_id.' and `product_id`='.$obj->product_id);
@@ -306,7 +306,7 @@ class plgHikashoppaymentcloudkassir extends hikashopPaymentPlugin
               endif;
     		}
   }
-  
+ 
 
 
 
