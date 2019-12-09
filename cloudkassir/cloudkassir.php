@@ -50,6 +50,7 @@ class plgHikashoppaymentcloudkassir extends hikashopPaymentPlugin
     		$sSql = "SELECT `payment_id` FROM `".hikashop_table('payment')."` where `payment_name`='cloudkassir' LIMIT 1";
     		$oDb->setQuery($sSql);
     		$sRow = $oDb->loadAssocList();
+            self::addError(print_r($sRow,1));
         if ($sRow[0]['payment_id']):
 
               $this->pluginParams($sRow[0]['payment_id']);
@@ -95,14 +96,16 @@ class plgHikashoppaymentcloudkassir extends hikashopPaymentPlugin
       global $oDb;
       //$order->order_id
       if ($order->order_id):
+             $quantities = array();
               $oDb = JFactory::getDBO();
-              $query="SELECT `product_id` FROM `".hikashop_table('order_product')."` where `order_id`=".$order->order_id;
+              $query="SELECT * FROM `".hikashop_table('order_product')."` where `order_id`=".$order->order_id;
               self::addError(print_r($query,1));
         			$oDb->setQuery($query);
         			$rows0 = $oDb->loadObjectList();
         			foreach($rows0 as $k => $row0)
               {
                  $product_ids[]=$row0->product_id;
+                 $quantities[$row0->product_id] = $row0->order_product_quantity;
               }
               self::addError(print_r($product_ids,1));
          			$query = 'SELECT * FROM '.hikashop_table('product').' WHERE product_id IN ('.implode(',',$product_ids).')';
@@ -125,7 +128,7 @@ class plgHikashoppaymentcloudkassir extends hikashopPaymentPlugin
           				$obj = new stdClass();
           				$obj->order_product_name = $row->product_name;
           				$obj->order_product_code = $row->product_code;
-          				$obj->order_product_quantity = (!empty($quantities[$row->product_id]) ? $quantities[$row->product_id]:1 );
+          				$obj->order_product_quantity = (!empty($quantities[$row->product_id]) ? $quantities[$row->product_id]:1 );    //order_product_quantity
           				$currencyClass->pricesSelection($row->prices,$obj->order_product_quantity);
           				$obj->product_id = $row->product_id;
                   self::addError('SELECT * FROM '.hikashop_table('order_product').' WHERE `order_id`='.$order->order_id.' and `product_id`='.$obj->product_id);
@@ -159,7 +162,7 @@ class plgHikashoppaymentcloudkassir extends hikashopPaymentPlugin
           if($curl = curl_init()):
                 self::addError("send_request");
 
-               // $request['CustomerReceipt']['Items'][0]['price']=1;
+                // $request['CustomerReceipt']['Items'][0]['price']=1;
                // $request['CustomerReceipt']['Items'][0]['amount']=1;
                 self::addError(print_r($request,1));   
                 
@@ -239,6 +242,7 @@ class plgHikashoppaymentcloudkassir extends hikashopPaymentPlugin
 
         $data['cloudPayments']['customerReceipt']['Items']=$items;
         $data['cloudPayments']['customerReceipt']['taxationSystem']=$params['TYPE_NALOG']; ///
+        $data['cloudPayments']['customerReceipt']['calculationPlace']=$params['calculationPlace'];
         $data['cloudPayments']['customerReceipt']['email']=$Ar_params['email']; 
         $data['cloudPayments']['customerReceipt']['phone']=$Ar_params['phone'];  
         
@@ -431,7 +435,7 @@ class plgHikashoppaymentcloudkassir extends hikashopPaymentPlugin
         $debug=false;
         if ($debug)
         {
-          $file=$_SERVER['DOCUMENT_ROOT'].'/plugins/hikashoppayment/cloudkassir/log.txt';
+          $file=$_SERVER['DOCUMENT_ROOT'].'/plugins/hikashoppayment/cloudkassir/log.txt';          
           $current = file_get_contents($file);
           $current .= date("d-m-Y H:i:s").":".$text."\n";
           file_put_contents($file, $current);
